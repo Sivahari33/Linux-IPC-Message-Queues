@@ -22,13 +22,71 @@ Execute the C Program for the desired output.
 
 ## C program that receives a message from message queue and display them
 
-
-
+writer.c
+```
+// C Program for Message Queue (Writer Process) 
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+// structure for message queue
+struct mesg_buffer {
+long mesg_type;
+char mesg_text[100];
+} message;
+int main()
+{ key_t key;
+int msgid;
+// ftok to generate unique key
+key = ftok("progfile", 65);
+// msgget creates a message queue
+// and returns identifier
+msgid = msgget(key, 0666 | IPC_CREAT);
+message.mesg_type = 1;
+printf("Write Data : ");
+gets(message.mesg_text);
+// msgsnd to send message
+msgsnd(msgid, &message, sizeof(message), 0);
+// display the message
+printf("Data send is : %s \n", message.mesg_text);
+return 0;
+}
+```
+reader.c
+```
+// C Program for Message Queue (Reader Process)
+#include <stdio.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+// structure for message queue
+struct mesg_buffer {
+long mesg_type;
+char mesg_text[100];
+} message;
+int main()
+{
+key_t key;
+int msgid;
+// ftok to generate unique key
+key = ftok("progfile", 65);
+// msgget creates a message queue
+// and returns identifier
+msgid = msgget(key, 0666 | IPC_CREAT);
+// msgrcv to receive message
+msgrcv(msgid, &message, sizeof(message), 1, 0);
+// display the message
+printf("Data Received is : %s \n",message.mesg_text);
+// to destroy the message queue
+msgctl(msgid, IPC_RMID, NULL);
+return 0;
+} 
+```
 
 
 ## OUTPUT
+<img width="1061" height="285" alt="image" src="https://github.com/user-attachments/assets/a7bb2765-7d7c-42db-85c8-43b1eaefb4d9" />
 
-
+![WhatsApp Image 2025-11-23 at 13 47 02_b81d3165](https://github.com/user-attachments/assets/47a81600-6a81-4a35-ac9e-099b96afe821)
 
 
 # RESULT:
